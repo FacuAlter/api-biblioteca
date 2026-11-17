@@ -38,6 +38,7 @@ siguiente_id = max((libro["id"] for libro in libros), default=0) + 1
 bloqueo = Lock()
 
 
+#-------------------------------------TAREAS FACILES---------------------------------------------------------------
 
 @app.get("/") # F1 GET/ devuelve 200 y exactamente {"mensaje"}
 def inicio():
@@ -75,4 +76,25 @@ def eliminar_libro(id: int):
                 guardar_libros(libros_actualizados)
                 libros[:] = libros_actualizados
                 return Response(status_code = 204)
+    raise HTTPException(status_code=404, detail="Libro no encontrado")
+
+#----------------------------------------FIN DE TAREAS FACILES-----------------------------------------------------------------------
+
+#-----------------------------------------TAREAS INTERMEDIAS-------------------------------------------------------------------
+
+@app.put("/libros/{id}")                                    #I2 Actualizar libro
+def actualizar_libro(id: int, libro: LibroEntrada):
+    with bloqueo:
+        for indice, libro_guardado in enumerate(libros): #enumerate devuelve la posicion en la lista y libro guardado
+            if libro_guardado["id"] == id:                  #Busco por ID uds ls posicion para remplazar el libro en una copia
+                libro_actualizado = {"id": id, **libro.model_dump()}
+                
+                libros_actualizados = libros.copy()
+                libros_actualizados[indice] = libro_actualizado
+
+                guardar_libros(libros_actualizados)
+                libros[:] = libros_actualizados
+
+                return libro_actualizado
+
     raise HTTPException(status_code=404, detail="Libro no encontrado")
