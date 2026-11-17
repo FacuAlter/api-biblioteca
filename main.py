@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from threading import Lock
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel, Field
 
 
@@ -58,9 +58,21 @@ def crear_libro(libro: LibroEntrada):
         siguiente_id +=1
     return nuevo_libro
 
-@app.get("/libros/{id}")            #F4 Consulta de libro por ID
+@app.get("/libros/{id}")            #F4 & F5 Consulta de libro por ID  
 def obtener_libro(id: int):
     for libro in libros:
         if libro["id"] == id:
             return libro
     raise HTTPException(status_code=404, detail ="Libro no encontrado")
+
+@app.delete("/libros/{id}", status_code=204)    #F6 Eliminar Libros
+def eliminar_libro(id: int):
+    with bloqueo:
+        for indice, libro in enumerate(libros):
+            if libro["id"] == id:
+                libros_actualizados = libros.copy()
+                del libros_actualizados[indice]
+                guardar_libros(libros_actualizados)
+                libros[:] = libros_actualizados
+                return Response(status_code = 204)
+    raise HTTPException(status_code=404, detail="Libro no encontrado")
