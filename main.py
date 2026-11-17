@@ -1,8 +1,9 @@
 import json
 from pathlib import Path
 from threading import Lock
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
+
 
 app = FastAPI()
 
@@ -43,11 +44,11 @@ def inicio():
     return {"mensaje": "API de la biblioteca"}
 
 
-@app.get("/libros")
+@app.get("/libros") #F2 Listar libros
 def listar_libros():
     return libros
 
-@app.post("/libros", status_code=201)
+@app.post("/libros", status_code=201) #F3 Crear Libro
 def crear_libro(libro: LibroEntrada):
     global siguiente_id
     with bloqueo:    
@@ -56,3 +57,10 @@ def crear_libro(libro: LibroEntrada):
         libros.append(nuevo_libro)
         siguiente_id +=1
     return nuevo_libro
+
+@app.get("/libros/{id}")            #F4 Consulta de libro por ID
+def obtener_libro(id: int):
+    for libro in libros:
+        if libro["id"] == id:
+            return libro
+    raise HTTPException(status_code=404, detail ="Libro no encontrado")
