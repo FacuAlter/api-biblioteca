@@ -45,9 +45,9 @@ def inicio():
     return {"mensaje": "API de la biblioteca"}
 
 
-@app.get("/libros") #F2 Listar libros
-def listar_libros():
-    return libros
+# @app.get("/libros") #F2 Listar libros
+# def listar_libros():
+#     return libros
 
 @app.post("/libros", status_code=201) #F3 Crear Libro
 def crear_libro(libro: LibroEntrada):
@@ -98,3 +98,26 @@ def actualizar_libro(id: int, libro: LibroEntrada):
                 return libro_actualizado
 
     raise HTTPException(status_code=404, detail="Libro no encontrado")
+
+
+@app.get("/libros") # I3: GET con filtros opcionales
+def listar_libros(
+    autor: str | None = None,
+    disponible: bool | None = None,
+):
+    #sorted crea una lista ordenada de mayor a menor
+    resultados = sorted(libros, key=lambda libro: libro["id"]) 
+
+    if autor is not None:
+        autor_buscado = autor.casefold()
+        resultados = [
+            libro for libro in resultados
+            if libro["autor"].casefold() == autor_buscado 
+        ]
+    if disponible is not None:
+        resultados = [
+            libro for libro in resultados
+            if libro["disponible"] == disponible
+        ]
+
+    return resultados
