@@ -1,4 +1,29 @@
 API de la Biblioteca
+## Instalación y ejecución
+
+API REST hecha con FastAPI para gestionar los libros de una biblioteca.
+
+Desde PowerShell, ubicado en la carpeta raíz del proyecto (`api-biblioteca`), creá y activá el entorno virtual:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+Instalá las dependencias del proyecto:
+
+```powershell
+pip install -r requirements.txt
+```
+
+Levantá el servidor:
+
+```powershell
+python -m uvicorn main:app --reload
+```
+
+Con el servidor corriendo, abrí [Swagger](http://127.0.0.1:8000/docs) para probar los endpoints.
+------------------------------------------------------------------------------------------------------------------------------
 
 ## I1 · Pruebas de validación
 Verifiqué que `POST /libros` devuelve `422` con un título de 2 o 101
