@@ -74,3 +74,13 @@ Ejemplo: `GET /libros?autor=jorge%20luis%20borges&disponible=false`
 
 La respuesta es `200 OK` con una lista ordenada por ID. Si no hay
 coincidencias, la lista es `[]`.
+
+### I4 — Paginación
+
+`GET /libros` acepta los parámetros opcionales `desde` y `limite`.
+`desde` indica cuántos libros saltear y vale `0` por defecto.
+`limite` indica cuántos libros devolver como máximo y vale `100` por defecto.
+La paginación se aplica después de los filtros, sobre la lista ordenada por ID.
+
+Ejemplo: `GET /libros?desde=2&limite=2`
+Saltea los primeros dos libros y devuelve como máximo los dos siguientes.

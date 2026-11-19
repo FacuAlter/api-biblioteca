@@ -100,24 +100,33 @@ def actualizar_libro(id: int, libro: LibroEntrada):
     raise HTTPException(status_code=404, detail="Libro no encontrado")
 
 
-@app.get("/libros") # I3: GET con filtros opcionales
+@app.get("/libros") # I3: GET con filtros opcionales /I4: Paginación
 def listar_libros(
-    autor: str | None = None,
-    disponible: bool | None = None,
+    autor: str | None = None,           # Filtro opcional por autor.
+    disponible: bool | None = None,     # Filtro opcional por disponibilidad.
+    desde: int = 0,                     # Cantidad de libros que se saltean.
+    limite: int = 0,                     # Cantidad máxima de libros a devolver.
 ):
-    #sorted crea una lista ordenada de mayor a menor
+    # Crea una lista nueva ordenada por ID de menor a mayor.
     resultados = sorted(libros, key=lambda libro: libro["id"]) 
 
+    # Aplica el filtro por autor si se envió el parámetro.
     if autor is not None:
         autor_buscado = autor.casefold()
         resultados = [
             libro for libro in resultados
             if libro["autor"].casefold() == autor_buscado 
         ]
+    
+    # Aplica el filtro por disponibilidad si se envió el parámetro.
     if disponible is not None:
         resultados = [
             libro for libro in resultados
             if libro["disponible"] == disponible
         ]
 
-    return resultados
+    # Calcula la posición final del segmento que vamos a devolver.
+    fin = desde + limite
+
+    # Selecciona desde la posición inicial hasta antes de la posición final.
+    return resultados[desde:fin]
