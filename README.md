@@ -84,3 +84,16 @@ La paginación se aplica después de los filtros, sobre la lista ordenada por ID
 
 Ejemplo: `GET /libros?desde=2&limite=2`
 Saltea los primeros dos libros y devuelve como máximo los dos siguientes.
+
+### I5 — Actualización parcial
+
+`PATCH /libros/{id}` actualiza únicamente los campos enviados.
+Los campos omitidos conservan su valor y el ID se mantiene.
+Un cuerpo vacío `{}` devuelve el libro completo sin cambios.
+Las modificaciones se guardan en `datos/libros.json`.
+
+Ejemplo de cuerpo para cambiar la disponibilidad:
+`{"disponible": false}`
+
+Devuelve `200 OK` con el libro completo, `404` si el libro no existe
+y `422` si un campo enviado es inválido.

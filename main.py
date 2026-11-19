@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from threading import Lock
 from fastapi import FastAPI, HTTPException, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 app = FastAPI()
@@ -15,6 +15,19 @@ class LibroEntrada(BaseModel):
     anio: int = Field(ge=1000, le=2100)
     disponible: bool = True
 
+class LibroParcial(BaseModel):
+    # Cada campo puede omitirse en la petición.
+    titulo: str | None = Field(default=None, min_length=3, max_length=100)
+    autor: str | None = Field(default=None, min_length=3, max_length=60)
+    anio: int | None = Field(default=None, ge=1000, le=2100)
+    disponible: bool | None = None
+    # Rechaza null si el cliente lo envía explícitamente.
+    @field_validator("titulo", "autor", "anio", "disponible")
+    @classmethod
+    def rechazar_null(cls, valor):
+        if valor is None:
+            raise ValueError("El campo no puede ser null")
+        return valor
 
 
 ARCHIVOS_LIBROS = Path(__file__).resolve().parent/ "datos"/ "libros.json"
@@ -130,3 +143,30 @@ def listar_libros(
 
     # Selecciona desde la posición inicial hasta antes de la posición final.
     return resultados[desde:fin]
+
+
+@app.patch("/libros/{id}")  # I5: actualización parcial.
+def actualizar_libro_parcial(id: int, libro: LibroParcial):
+    # Procesa una modificación por vez.
+    with bloqueo:
+        for indice, libro_guardado in enumerate(libros):
+            if libro_guardado["id"] == id:
+                # Obtiene únicamente los campos enviados en el JSON.
+                cambios = libro.model_dump(exclude_unset=True)
+
+                # Copia el libro actual y aplica los cambios recibidos.
+                libro_actualizado = libro_guardado.copy()
+                libro_actualizado.update(cambios)
+
+                # Prepara la lista con el libro actualizado.
+                libros_actualizados = libros.copy()
+                libros_actualizados[indice] = libro_actualizado
+
+                # Guarda antes de actualizar la lista en memoria.
+                guardar_libros(libros_actualizados)
+                libros[:] = libros_actualizados
+
+                # Devuelve el libro completo, conservando su ID.
+                return libro_actualizado
+
+    raise HTTPException(status_code=404, detail="Libro no encontrado")
