@@ -62,14 +62,46 @@ def inicio():
 # def listar_libros():
 #     return libros
 
-@app.post("/libros", status_code=201) #F3 Crear Libro
+# @app.post("/libros", status_code=201) #F3 Crear Libro
+# def crear_libro(libro: LibroEntrada):
+#     global siguiente_id
+#     with bloqueo:    
+#         nuevo_libro = {"id": siguiente_id, **libro.model_dump()}
+#         guardar_libros(libros + [nuevo_libro])
+#         libros.append(nuevo_libro)
+#         siguiente_id +=1
+#     return nuevo_libro
+
+
+@app.post("/libros", status_code=201) #F3 Crear Libro -  #I6 Rechaza libros duplicados
 def crear_libro(libro: LibroEntrada):
     global siguiente_id
-    with bloqueo:    
-        nuevo_libro = {"id": siguiente_id, **libro.model_dump()}
+    with bloqueo:
+        #Prepara los textos para compararloss ignorando mayusculas
+        titulo_buscado = libro.titulo.casefold()
+        autor_buscado =libro.autor.casefold()
+        
+        #Aqui revisa si existe la misma combinacion de titulo y autor
+        for existente in libros:
+            mismo_titulo = existente["titulo"].casefold() == titulo_buscado
+            mismo_autor = existente ["autor"].casefold() == autor_buscado
+
+            if mismo_titulo and mismo_autor:
+                raise HTTPException(
+                    status_code = 409,
+                    detail = "Ya este este libron ese titulo y autor"
+                )
+        # Asigna el proximo ID y agrega los datos validos
+        
+        nuevo_libro = {"id": siguiente_id,**libro.model_dump()}
+
+        #Guarda en el archivo antes de actualizar la memoria
         guardar_libros(libros + [nuevo_libro])
         libros.append(nuevo_libro)
-        siguiente_id +=1
+
+        #Avanza el contador unicamente cuando se creo el libro
+        siguiente_id += 1
+
     return nuevo_libro
 
 @app.get("/libros/{id}")            #F4 & F5 Consulta de libro por ID  
@@ -170,3 +202,7 @@ def actualizar_libro_parcial(id: int, libro: LibroParcial):
                 return libro_actualizado
 
     raise HTTPException(status_code=404, detail="Libro no encontrado")
+
+
+
+

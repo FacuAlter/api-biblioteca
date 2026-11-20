@@ -97,3 +97,11 @@ Ejemplo de cuerpo para cambiar la disponibilidad:
 
 Devuelve `200 OK` con el libro completo, `404` si el libro no existe
 y `422` si un campo enviado es inválido.
+
+
+### I6 — Conflicto por libro duplicado
+
+`POST /libros` devuelve `409 Conflict` si ya existe un libro con
+el mismo título y autor, sin distinguir mayúsculas y minúsculas.
+El intento duplicado no agrega un libro ni avanza el contador de IDs.
+La respuesta contiene `{"detail": "Ya existe un libro con ese título y autor"}`.
