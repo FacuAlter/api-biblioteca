@@ -105,3 +105,14 @@ y `422` si un campo enviado es inválido.
 el mismo título y autor, sin distinguir mayúsculas y minúsculas.
 El intento duplicado no agrega un libro ni avanza el contador de IDs.
 La respuesta contiene `{"detail": "Ya existe un libro con ese título y autor"}`.
+
+### I7 — IDs que no se reutilizan
+
+Cada libro recibe un ID mediante un contador que aumenta al crear un libro.
+Borrar un libro no disminuye el contador.
+Durante una misma ejecución, los IDs eliminados no se reutilizan.
+
+Por ejemplo, si se crean los libros 1, 2 y 3, se borra el 3
+y se crea otro, el nuevo libro recibe el ID 4.
+Al iniciar la API, el contador se calcula como el mayor ID guardado más uno,
+o 1 si la lista está vacía.

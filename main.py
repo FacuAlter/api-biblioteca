@@ -47,6 +47,9 @@ def guardar_libros(lista_libros):
     temporal.replace(ARCHIVOS_LIBROS)
 
 libros = cargar_libros()
+
+# I7: Al iniciar, calcula el próximo ID usando el mayor ID guardado.
+# Si la lista está vacía, default=0 hace que el primer ID sea 1.
 siguiente_id = max((libro["id"] for libro in libros), default=0) + 1
 bloqueo = Lock()
 
@@ -73,15 +76,15 @@ def inicio():
 #     return nuevo_libro
 
 
-@app.post("/libros", status_code=201) #F3 Crear Libro -  #I6 Rechaza libros duplicados
+@app.post("/libros", status_code=201) #F3 Crear Libro. #I6 Rechaza libros duplicados
 def crear_libro(libro: LibroEntrada):
-    global siguiente_id
+    global siguiente_id                 # I7: permite modificar el contador global que conserva el próximo ID.
     with bloqueo:
-        #Prepara los textos para compararloss ignorando mayusculas
+        # I6: prepara los textos para comparar ignorando mayúsculas.
         titulo_buscado = libro.titulo.casefold()
         autor_buscado =libro.autor.casefold()
         
-        #Aqui revisa si existe la misma combinacion de titulo y autor
+        #I6: Aqui revisa si existe la misma combinacion de titulo y autor
         for existente in libros:
             mismo_titulo = existente["titulo"].casefold() == titulo_buscado
             mismo_autor = existente ["autor"].casefold() == autor_buscado
@@ -93,12 +96,15 @@ def crear_libro(libro: LibroEntrada):
                 )
         # Asigna el proximo ID y agrega los datos validos
         
+        # I7: asigna el ID usando el contador, que se conserva al borrar libros.
         nuevo_libro = {"id": siguiente_id,**libro.model_dump()}
 
         #Guarda en el archivo antes de actualizar la memoria
         guardar_libros(libros + [nuevo_libro])
         libros.append(nuevo_libro)
 
+        #I7: aumenta el contador después de una creación exitosa.
+        #Si se borra este libro, la próxima creación usa el número siguiente.
         #Avanza el contador unicamente cuando se creo el libro
         siguiente_id += 1
 
