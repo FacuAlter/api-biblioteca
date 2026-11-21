@@ -116,3 +116,14 @@ Por ejemplo, si se crean los libros 1, 2 y 3, se borra el 3
 y se crea otro, el nuevo libro recibe el ID 4.
 Al iniciar la API, el contador se calcula como el mayor ID guardado más uno,
 o 1 si la lista está vacía.
+
+### I8 — Persistencia en archivo
+
+Los libros se guardan en `datos/libros.json`.
+La ruta se calcula tomando como referencia la ubicación de `main.py`.
+La carpeta `datos` se crea automáticamente al guardar si todavía no existe.
+Las operaciones POST, PUT, PATCH y DELETE guardan los cambios.
+Al iniciar, la API recupera los libros y calcula el próximo ID
+como el mayor ID guardado más uno, o 1 si la lista está vacía.
+Si el archivo falta, está vacío o contiene datos inválidos,
+la API inicia con una lista vacía.

@@ -15,6 +15,10 @@ class LibroEntrada(BaseModel):
     anio: int = Field(ge=1000, le=2100)
     disponible: bool = True
 
+class LibroGuardado(LibroEntrada):
+    #Un libro guardado tambien debe tener su ID
+    id: int = Field(gt=0)
+
 class LibroParcial(BaseModel):
     # Cada campo puede omitirse en la petición.
     titulo: str | None = Field(default=None, min_length=3, max_length=100)
@@ -33,22 +37,40 @@ class LibroParcial(BaseModel):
 ARCHIVOS_LIBROS = Path(__file__).resolve().parent/ "datos"/ "libros.json"
 
 def cargar_libros():
-    if not ARCHIVOS_LIBROS.exists():
+    try:
+        #Abre el archivo en modo lectura
+        with ARCHIVOS_LIBROS.open("r", encoding="utf-8") as archivo:
+            datos = json.load(archivo)
+        #El archivo debe contener un lista jSOn
+        if not isinstance(datos, list):
+            return[]
+        #Valida cada libro y lo convierte nuevamente en diccionario
+        return[
+            LibroGuardado.model_validate(libro).model_dump()
+            for libro in datos
+        ]
+    except (FileNotFoundError, ValueError):
+        #Arranca vacia si falta el archivo, esta vacio o sus datos son invalidos
         return []
-    with ARCHIVOS_LIBROS.open("r", encoding="utf-8") as archivo:
-        return json.load(archivo)
 
 def guardar_libros(lista_libros):
-    ARCHIVOS_LIBROS.parent.mkdir(exist_ok=True)
-
+    #Crea la carpeta datos si doavia no existe
+    ARCHIVOS_LIBROS.parent.mkdir(parents=True, exist_ok=True)
+    
+    #Prepara un archivo temporal en la misma carpeta
     temporal = ARCHIVOS_LIBROS.with_suffix(".tmp")
+    
+    #Escribe la lista completa con caracteres y sangria legible
     with temporal.open("w", encoding="utf-8") as archivo:
         json.dump(lista_libros, archivo, ensure_ascii=False, indent=4)
+
+    #Reemplaza el archivo difinitivo cuando termina la escritura
     temporal.replace(ARCHIVOS_LIBROS)
 
+# I8: recupera los datos al iniciar la API.
 libros = cargar_libros()
 
-# I7: Al iniciar, calcula el próximo ID usando el mayor ID guardado.
+# I7 e I8: Al iniciar, calcula el próximo ID usando el mayor ID guardado.
 # Si la lista está vacía, default=0 hace que el primer ID sea 1.
 siguiente_id = max((libro["id"] for libro in libros), default=0) + 1
 bloqueo = Lock()
