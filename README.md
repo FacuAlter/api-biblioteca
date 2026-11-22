@@ -49,7 +49,7 @@ y queda en `true` si se omite. La actualización se guarda en `datos/libros.json
 
 ```json
 {
-  "id": 5,
+  "id": 1,
   "titulo": "El Aleph",
   "autor": "Jorge Luis Borges",
   "anio": 1949,

@@ -114,7 +114,7 @@ def crear_libro(libro: LibroEntrada):
             if mismo_titulo and mismo_autor:
                 raise HTTPException(
                     status_code = 409,
-                    detail = "Ya este este libron ese titulo y autor"
+                    detail = "Ya existe un libro con ese título y autor"
                 )
         # Asigna el proximo ID y agrega los datos validos
         
@@ -194,7 +194,7 @@ def listar_libros(
     autor: str | None = None,           # Filtro opcional por autor.
     disponible: bool | None = None,     # Filtro opcional por disponibilidad.
     desde: int = 0,                     # Cantidad de libros que se saltean.
-    limite: int = 0,                     # Cantidad máxima de libros a devolver.
+    limite: int = 100,                     # Cantidad máxima de libros a devolver.
 ):
     # Crea una lista nueva ordenada por ID de menor a mayor.
     resultados = sorted(libros, key=lambda libro: libro["id"]) 
