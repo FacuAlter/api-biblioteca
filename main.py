@@ -132,6 +132,22 @@ def crear_libro(libro: LibroEntrada):
 
     return nuevo_libro
 
+@app.get("/libros/buscar")      # I9: búsqueda por título o autor
+def buscar_libro(texto: str):
+    # Prepara el texto recibido para comparar ignorando mayusculas
+    texto_buscado = texto.casefold()
+
+    #Recorre los libros ordenados por ID de menor a mayor
+    resultados =[
+        libro 
+        for libro in sorted(libros, key=lambda libro: libro["id"])
+        #Conserva el libro si el texto aparece en el título o en el autor
+        if texto_buscado in libro["titulo"].casefold()
+        or texto_buscado in libro["autor"].casefold()
+    ]
+    #Devuelve las coincidencias, o [] si ninguna cumple
+    return resultados
+
 @app.get("/libros/{id}")            #F4 & F5 Consulta de libro por ID  
 def obtener_libro(id: int):
     for libro in libros:

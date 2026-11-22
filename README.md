@@ -127,3 +127,15 @@ Al iniciar, la API recupera los libros y calcula el próximo ID
 como el mayor ID guardado más uno, o 1 si la lista está vacía.
 Si el archivo falta, está vacío o contiene datos inválidos,
 la API inicia con una lista vacía.
+
+### I9 — Búsqueda por texto
+
+`GET /libros/buscar?texto=...` busca coincidencias parciales
+en el título o autor, sin distinguir mayúsculas y minúsculas.
+El parámetro `texto` es obligatorio.
+Devuelve `200 OK` con una lista ordenada por ID.
+Si no hay coincidencias, devuelve `[]`.
+Si falta `texto`, devuelve `422`.
+La búsqueda también funciona con los libros recuperados después de reiniciar.
+
+Ejemplo: `GET /libros/buscar?texto=borges`
