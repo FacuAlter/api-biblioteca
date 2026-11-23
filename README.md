@@ -1,6 +1,6 @@
 ## API de la Biblioteca
 
-## Desarrollor
+## Desarrollador
   Facundo Nicolás Flores 
 
 ## Instalación y ejecución
