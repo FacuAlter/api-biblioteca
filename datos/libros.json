@@ -1,0 +1,16 @@
+[
+    {
+        "titulo": "El Hobbit",
+        "autor": "J. R. R. Tolkien",
+        "anio": 1937,
+        "disponible": true,
+        "id": 3
+    },
+    {
+        "id": 4,
+        "titulo": "El Silmarillion",
+        "autor": "J. R. R. Tolkien",
+        "anio": 1977,
+        "disponible": true
+    }
+]
