@@ -1,4 +1,8 @@
-API de la Biblioteca
+## API de la Biblioteca
+
+## Desarrollor
+  Facundo Nicolás Flores 
+
 ## Instalación y ejecución
 
 API REST hecha con FastAPI para gestionar los libros de una biblioteca.
